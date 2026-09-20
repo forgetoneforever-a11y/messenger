@@ -5,11 +5,12 @@ const { Server } = require('socket.io');
 const io = new Server(http);
 const path = require('path');
 
-// Раздаем статические файлы из корневой папки
-app.use(express.static(__dirname));
+// Указываем Express раздавать статические файлы из папки public
+app.use(express.static(path.join(__dirname, 'public')));
 
+// Главная страница отдает index.html из папки public
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Список активных пользователей: socket.id -> { id, username }
