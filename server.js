@@ -7,36 +7,47 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// Раздаем статические файлы из папки public (где лежит index.html)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Хранилище подключенных пользователей: имя -> socket.id
-const activeUsers = {};
-
-function updateOnlineUsers() {
-    const usersList = Object.keys(activeUsers).map(username => ({
-        username: username,
-        status: 'В сети'
-    }));
-    io.emit('update_users', usersList);
-}
+// Хранилище пользователей: имя -> { socketId, avatar }
+const registeredUsers = {};
 
 io.on('connection', (socket) => {
-    console.log('Пользователь подключился:', socket.id);
+    console.log('Подключился:', socket.id);
 
-    // Установка никнейма при входе
-    socket.on('set_username', (data) => {
+    socket.on('set_user_data', (data) => {
         socket.username = data.username;
-        activeUsers[data.username] = socket.id;
-        updateOnlineUsers();
+        registeredUsers[data.username] = {
+            socketId: socket.id,
+            avatar: data.avatar || ''
+        };
     });
 
-    // Обработка публичного сообщения в общем чате
+    socket.on('update_profile', (data) => {
+        if (socket.username && registeredUsers[socket.username]) {
+            delete registeredUsers[socket.username];
+        }
+        socket.username = data.username;
+        registeredUsers[data.username] = {
+            socketId: socket.id,
+            avatar: data.avatar || ''
+        };
+    });
+
+    // Поиск пользователей по подстроке никнейма
+    socket.on('search_users', (query, callback) => {
+        const results = [];
+        for (const [uname, info] of Object.entries(registeredUsers)) {
+            if (uname.toLowerCase().includes(query.toLowerCase()) && uname !== socket.username) {
+                results.push({ username: uname, avatar: info.avatar });
+            }
+        }
+        callback(results);
+    });
+
     socket.on('chat_message', (data) => {
         if (!socket.username) return;
         const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        
-        // Рассылаем сообщение ВСЕМ клиентам
         io.emit('chat_message', {
             sender: socket.username,
             message: data.message,
@@ -45,10 +56,9 @@ io.on('connection', (socket) => {
         });
     });
 
-    // Обработка личных сообщений (ЛС)
     socket.on('private_message', (data) => {
         if (!socket.username) return;
-        const targetSocketId = activeUsers[data.recipient];
+        const targetUser = registeredUsers[data.recipient];
         const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         
         const payload = {
@@ -56,23 +66,19 @@ io.on('connection', (socket) => {
             recipient: data.recipient,
             message: data.message,
             time: time,
-            isPrivate: true,
             image: data.image || null
         };
 
-        // Отправляем получателю, если он онлайн
-        if (targetSocketId) {
-            io.to(targetSocketId).emit('private_message', payload);
+        if (targetUser && targetUser.socketId) {
+            io.to(targetUser.socketId).emit('private_message', payload);
         }
     });
 
-    // Отключение пользователя
     socket.on('disconnect', () => {
         if (socket.username) {
-            delete activeUsers[socket.username];
-            updateOnlineUsers();
+            delete registeredUsers[socket.username];
         }
-        console.log('Пользователь отключился:', socket.id);
+        console.log('Отключился:', socket.id);
     });
 });
 
