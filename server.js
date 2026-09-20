@@ -1,67 +1,80 @@
 const express = require('express');
-const app = express();
-const http = require('http').createServer(app);
+const http = require('http');
 const { Server } = require('socket.io');
-const io = new Server(http);
-const path = require('path');
 
-// Указываем Express раздавать статические файлы из папки public
-app.use(express.static(path.join(__dirname, 'public')));
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
 
-// Главная страница отдает index.html из папки public
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+app.use(express.static(__dirname));
 
-// Список активных пользователей: socket.id -> { id, username }
-const users = {};
+// Хранилище подключенных пользователей: имя -> socket.id
+const activeUsers = {};
+
+function updateOnlineUsers() {
+    const usersList = Object.keys(activeUsers).map(username => ({
+        username: username,
+        status: 'В сети'
+    }));
+    io.emit('update_users', usersList);
+}
 
 io.on('connection', (socket) => {
-    console.log(`Пользователь подключился: ${socket.id}`);
+    console.log('Пользователь подключился:', socket.id);
 
-    // Установка имени пользователя при входе
-    socket.on('set_username', (username) => {
-        const cleanName = username ? username.trim() : 'User';
-        users[socket.id] = { id: socket.id, username: cleanName };
-        // Рассылаем обновленный список онлайн-пользователей всем
-        io.emit('update_users', Object.values(users));
+    // Установка никнейма при входе
+    socket.on('set_username', (data) => {
+        socket.username = data.username;
+        activeUsers[data.username] = socket.id;
+        updateOnlineUsers();
     });
 
-    // Обработка общего сообщения
+    // Обработка публичного сообщения в общем чате
     socket.on('chat_message', (data) => {
-        const senderName = users[socket.id]?.username || 'User';
+        if (!socket.username) return;
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        // Рассылаем сообщение ВСЕМ клиентам (включая отправителя)
         io.emit('chat_message', {
-            sender: senderName,
+            sender: socket.username,
             message: data.message,
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            time: time,
+            image: data.image || null
         });
     });
 
-    // Обработка личного (приватного) сообщения
-    socket.on('private_message', ({ to, message }) => {
-        const senderName = users[socket.id]?.username || 'User';
-        const messageData = {
-            senderId: socket.id,
-            senderName: senderName,
-            message: message,
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    // Обработка личных сообщений (ЛС)
+    socket.on('private_message', (data) => {
+        if (!socket.username) return;
+        const targetSocketId = activeUsers[data.recipient];
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        const payload = {
+            sender: socket.username,
+            recipient: data.recipient,
+            message: data.message,
+            time: time,
+            isPrivate: true,
+            image: data.image || null
         };
 
-        // Отправляем получателю
-        io.to(to).emit('private_message', messageData);
-        // Отправляем обратно отправителю для отображения в его окне ЛС
-        socket.emit('private_message_sent', { to, ...messageData });
+        // Отправляем получателю, если он онлайн
+        if (targetSocketId) {
+            io.to(targetSocketId).emit('private_message', payload);
+        }
     });
 
     // Отключение пользователя
     socket.on('disconnect', () => {
-        delete users[socket.id];
-        io.emit('update_users', Object.values(users));
-        console.log(`Пользователь отключился: ${socket.id}`);
+        if (socket.username) {
+            delete activeUsers[socket.username];
+            updateOnlineUsers();
+        }
+        console.log('Пользователь отключился:', socket.id);
     });
 });
 
 const PORT = process.env.PORT || 3000;
-http.listen(PORT, () => {
-    console.log(`Сервер запущен на порту ${PORT}`);
+server.listen(PORT, () => {
+    console.log(`Сервер запущен на http://localhost:${PORT}`);
 });
