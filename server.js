@@ -5,36 +5,38 @@ const { Server } = require('socket.io');
 const io = new Server(http);
 const path = require('path');
 
-// Раздаем статические файлы из текущей папки
+// Раздаем статические файлы из корневой папки
 app.use(express.static(__dirname));
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Список активных пользователей: id -> { username }
+// Список активных пользователей: socket.id -> { id, username }
 const users = {};
 
 io.on('connection', (socket) => {
     console.log(`Пользователь подключился: ${socket.id}`);
 
-    // Пользователь установил/передал свое имя при входе
+    // Установка имени пользователя при входе
     socket.on('set_username', (username) => {
-        users[socket.id] = { id: socket.id, username: username || 'User' };
+        const cleanName = username ? username.trim() : 'User';
+        users[socket.id] = { id: socket.id, username: cleanName };
         // Рассылаем обновленный список онлайн-пользователей всем
         io.emit('update_users', Object.values(users));
     });
 
     // Обработка общего сообщения
     socket.on('chat_message', (data) => {
+        const senderName = users[socket.id]?.username || 'User';
         io.emit('chat_message', {
-            sender: users[socket.id]?.username || 'User',
+            sender: senderName,
             message: data.message,
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         });
     });
 
-    // НОВОЕ: Обработка личного (приватного) сообщения
+    // Обработка личного (приватного) сообщения
     socket.on('private_message', ({ to, message }) => {
         const senderName = users[socket.id]?.username || 'User';
         const messageData = {
@@ -46,7 +48,7 @@ io.on('connection', (socket) => {
 
         // Отправляем получателю
         io.to(to).emit('private_message', messageData);
-        // Отправляем обратно отправителю (чтобы у него тоже отобразилось в окне ЛС)
+        // Отправляем обратно отправителю для отображения в его окне ЛС
         socket.emit('private_message_sent', { to, ...messageData });
     });
 
