@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZoVnilka — Glassmorphism Pro + PM</title>
+    <title>ZoVnilka — Search & Direct Messages</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -110,7 +110,7 @@
         .nav-item.logout:hover { background: rgba(239, 68, 68, 0.2); color: #f87171; }
 
         .sidebar-panels {
-            width: 300px;
+            width: 320px;
             background: rgba(12, 15, 25, 0.45);
             border-right: 1px solid rgba(255, 255, 255, 0.05);
             display: flex;
@@ -121,12 +121,22 @@
 
         .panel-title { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 15px; }
 
+        .search-box {
+            position: relative; margin-bottom: 15px;
+        }
+        .search-box input {
+            width: 100%; padding: 10px 14px 10px 38px; background: rgba(10, 13, 20, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; color: #fff; font-size: 13px; outline: none;
+        }
+        .search-box input:focus { border-color: #a855f7; box-shadow: 0 0 10px rgba(168,85,247,0.25); }
+        .search-box i { position: absolute; left: 13px; top: 12px; color: #9ca3af; font-size: 14px; }
+
         .chat-item {
             display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px;
-            background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.25); cursor: pointer;
+            background: rgba(168, 85, 247, 0.08); border: 1px solid rgba(168, 85, 247, 0.15); cursor: pointer;
             transition: all 0.2s; margin-bottom: 8px;
         }
-        .chat-item:hover { background: rgba(168, 85, 247, 0.2); }
+        .chat-item:hover { background: rgba(168, 85, 247, 0.18); }
         .chat-item.active-chat { border-color: #a855f7; background: rgba(168, 85, 247, 0.25); }
         
         .chat-item-avatar {
@@ -137,21 +147,7 @@
         .chat-item-info .title { font-size: 14px; font-weight: 600; color: #fff; }
         .chat-item-info .preview { font-size: 12px; color: #9ca3af; margin-top: 2px; }
 
-        .online-list-title { font-size: 11px; text-transform: uppercase; color: #6b7280; font-weight: 700; margin: 15px 0 10px; letter-spacing: 1px; }
-        .online-users-list { flex: 1; overflow-y: auto; }
-        .online-user-row {
-            display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; background: rgba(255,255,255,0.02); margin-bottom: 6px;
-            border: 1px solid rgba(255,255,255,0.02); transition: background 0.2s; cursor: pointer;
-        }
-        .online-user-row:hover { background: rgba(168, 85, 247, 0.15); border-color: rgba(168, 85, 247, 0.3); }
-        .online-user-row .mini-ava { 
-            width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-            font-size: 12px; font-weight: bold; color: white; overflow: hidden; flex-shrink: 0;
-            background: linear-gradient(135deg, #a855f7, #6366f1);
-        }
-        .online-user-row .mini-ava img { width: 100%; height: 100%; object-fit: cover; }
-        .online-user-row .info .u-name { font-size: 13px; font-weight: 600; color: #e5e7eb; }
-        .online-user-row .info .u-status { font-size: 11px; color: #10b981; }
+        .search-results-list { margin-top: 5px; }
 
         .profile-card { text-align: center; }
         .profile-big-ava {
@@ -204,9 +200,6 @@
             border: none;
             box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
         }
-        .message.pm-badge {
-            border: 1px dashed #c084fc;
-        }
         
         .msg-user { font-size: 12px; color: #c084fc; font-weight: 600; margin-bottom: 2px; }
         .msg-content { font-size: 14px; color: #f3f4f6; line-height: 1.45; padding-right: 50px; }
@@ -256,17 +249,13 @@
                     <button type="button" class="toggle-password" id="toggle-password-btn"><i class="fa-solid fa-eye" id="eye-icon"></i></button>
                 </div>
             </div>
-            <div class="input-group" id="extra-reg-fields" style="display: none;">
-                <label>Статус:</label>
-                <input type="text" id="status-input" value="В сети">
-            </div>
             <button class="btn" id="auth-btn">Войти</button>
             <div class="toggle-auth" id="toggle-auth-btn">Нет аккаунта? <span>Зарегистрироваться</span></div>
         </div>
 
         <!-- Экран Чата -->
         <div id="chat-screen">
-            <!-- Навигационная панель слева -->
+            <!-- Навигационная панель -->
             <div class="nav-rail">
                 <div class="nav-item active" onclick="switchTab('chats', this)" title="Чаты"><i class="fa-solid fa-comments"></i></div>
                 <div class="nav-item" onclick="switchTab('profile', this)" title="Профиль"><i class="fa-solid fa-user"></i></div>
@@ -279,7 +268,7 @@
                 <div class="panel-content active" id="panel-chats">
                     <div class="panel-title">Чаты</div>
                     
-                    <!-- Кнопка Общего чата -->
+                    <!-- Общий чат -->
                     <div class="chat-item active-chat" id="chat-item-global" onclick="openGlobalChat()">
                         <div class="chat-item-avatar"><i class="fa-solid fa-bullhorn"></i></div>
                         <div class="chat-item-info">
@@ -288,8 +277,14 @@
                         </div>
                     </div>
 
-                    <div class="online-list-title">Личные сообщения (ЛС)</div>
-                    <div class="online-users-list" id="online-users-container"></div>
+                    <!-- Поиск пользователей -->
+                    <div class="search-box" style="margin-top: 15px;">
+                        <i class="fa-solid fa-search"></i>
+                        <input type="text" id="search-user-input" placeholder="Найти пользователя...">
+                    </div>
+
+                    <!-- Результаты поиска и активные ЛС -->
+                    <div class="search-results-list" id="search-results-container"></div>
                 </div>
 
                 <div class="panel-content" id="panel-profile">
@@ -297,6 +292,7 @@
                     <div class="profile-card">
                         <div class="profile-big-ava" onclick="document.getElementById('avatar-file-input').click()">
                             <span id="profile-ava-letter">U</span>
+                            <img id="profile-img-preview" style="display: none; width: 100%; height: 100%; object-fit: cover;">
                             <input type="file" id="avatar-file-input" accept="image/*" style="display: none;">
                         </div>
                         <div class="profile-field">
@@ -319,14 +315,13 @@
             <!-- Область чата -->
             <div class="tg-chat-area">
                 <div class="tg-chat-header">
-                    <div class="user-avatar" id="current-chat-icon" style="width: 36px; height: 36px; background: #6366f1; border-radius: 50%; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-bullhorn"></i></div>
+                    <div class="user-avatar" id="current-chat-icon" style="width: 36px; height: 36px; background: #6366f1; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow:hidden;"><i class="fa-solid fa-bullhorn"></i></div>
                     <div>
                         <div class="chat-title" id="current-chat-title">Общий чат ZoVnilka</div>
                         <div class="chat-status" id="chat-header-status">Публичный канал</div>
                     </div>
                 </div>
 
-                <!-- Контейнеры сообщений для каждого чата хранятся здесь или переключаются -->
                 <div class="tg-messages" id="messages-container"></div>
 
                 <div class="tg-input-area">
@@ -346,13 +341,11 @@
         let isRegistering = false;
         let socket;
         let username = '';
-        let userAvatar = '';
-        let currentTargetUser = null; // null = общий чат, строка (имя) = личный чат с пользователем
+        let userAvatar = ''; // картинка base64 или пусто
+        let currentTargetUser = null; // null = общий чат, строка = ЛС
         
-        // Хранилище сообщений: ключ — 'global' или имя пользователя для ЛС
-        const chatHistories = {
-            'global': []
-        };
+        const chatHistories = { 'global': [] };
+        const activePMUsers = new Set(); // Список пользователей с которыми открыт ЛС через поиск
 
         const authScreen = document.getElementById('auth-screen');
         const chatScreen = document.getElementById('chat-screen');
@@ -362,7 +355,8 @@
         const messagesContainer = document.getElementById('messages-container');
         const messageInput = document.getElementById('message-input');
         const sendBtn = document.getElementById('send-btn');
-        const onlineUsersContainer = document.getElementById('online-users-container');
+        const searchUserInput = document.getElementById('search-user-input');
+        const searchResultsContainer = document.getElementById('search-results-container');
 
         function switchTab(tabName, element) {
             document.querySelectorAll('.panel-content').forEach(p => p.classList.remove('active'));
@@ -373,7 +367,6 @@
 
         function logout() { window.location.reload(); }
 
-        // Переключение на Общий чат
         function openGlobalChat() {
             currentTargetUser = null;
             document.getElementById('current-chat-title').innerText = 'Общий чат ZoVnilka';
@@ -385,24 +378,55 @@
             renderCurrentChatMessages();
         }
 
-        // Открытие Личного чата с конкретным юзером
-        function openPrivateChat(targetUsername) {
-            if (targetUsername === username) return; // Нельзя писать самому себе
+        function openPrivateChat(targetUsername, targetAvatar) {
+            if (targetUsername === username) return;
             currentTargetUser = targetUsername;
+            activePMUsers.add(targetUsername);
             
             if (!chatHistories[targetUsername]) {
                 chatHistories[targetUsername] = [];
             }
 
             document.getElementById('current-chat-title').innerText = targetUsername;
-            document.getElementById('chat-header-status').innerText = 'Личные сообщения';
-            document.getElementById('current-chat-icon').innerHTML = targetUsername.charAt(0).toUpperCase();
+            document.getElementById('chat-header-status').innerText = 'Личное сообщение';
+            
+            const iconEl = document.getElementById('current-chat-icon');
+            if (targetAvatar) {
+                iconEl.innerHTML = `<img src="${targetAvatar}" style="width:100%; height:100%; object-fit:cover;">`;
+            } else {
+                iconEl.innerHTML = targetUsername.charAt(0).toUpperCase();
+            }
 
-            document.querySelectorAll('.chat-item').forEach(el => el.classList.remove('active-chat'));
-            const pmItem = document.getElementById(`pm-item-${targetUsername}`);
-            if (pmItem) pmItem.classList.add('active-chat');
-
+            renderChatList();
             renderCurrentChatMessages();
+        }
+
+        function renderChatList(usersToDisplay = []) {
+            searchResultsContainer.innerHTML = '';
+            
+            // Если введен поисковый запрос, выводим результаты поиска, иначе просто активные диалоги ЛС
+            const displayList = usersToDisplay.length > 0 ? usersToDisplay : Array.from(activePMUsers);
+
+            displayList.forEach(usrObj => {
+                const targetName = typeof usrObj === 'string' ? usrObj : usrObj.username;
+                const targetAva = typeof usrObj === 'object' ? usrObj.avatar : '';
+                if (targetName === username) return;
+
+                const row = document.createElement('div');
+                row.className = `chat-item ${currentTargetUser === targetName ? 'active-chat' : ''}`;
+                row.onclick = () => openPrivateChat(targetName, targetAva);
+                
+                const avaHtml = targetAva ? `<img src="${targetAva}">` : targetName.charAt(0).toUpperCase();
+
+                row.innerHTML = `
+                    <div class="chat-item-avatar">${avaHtml}</div>
+                    <div class="chat-item-info">
+                        <div class="title">${targetName}</div>
+                        <div class="preview">Личный чат</div>
+                    </div>
+                `;
+                searchResultsContainer.appendChild(row);
+            });
         }
 
         function renderCurrentChatMessages() {
@@ -415,17 +439,16 @@
         function appendMessageDOM(data) {
             const div = document.createElement('div');
             const isMy = data.sender === username;
-            const isPM = data.isPrivate;
-            div.className = `message ${isMy ? 'my-message' : ''} ${isPM ? 'pm-badge' : ''}`;
+            div.className = `message ${isMy ? 'my-message' : ''}`;
             
             let contentHtml = `<div class="msg-content">${data.message}</div>`;
             if (data.image) {
                 contentHtml += `<img src="${data.image}" class="msg-image" onclick="window.open(this.src)">`;
             }
 
+            // Никнейм всегда пишется одинаково (как в чате, без лишних плашек ЛС)
             div.innerHTML = `
-                ${!isMy && !isPM ? `<div class="msg-user">${data.sender}</div>` : ''}
-                ${isPM ? `<div class="msg-user" style="color: #f43f5e;">🔒 ЛС ${isMy ? 'для ' + data.recipient : 'от ' + data.sender}</div>` : ''}
+                ${!isMy ? `<div class="msg-user">${data.sender}</div>` : ''}
                 ${contentHtml}
                 <div class="msg-footer-row">
                     <span class="msg-time">${data.time}</span>
@@ -440,7 +463,6 @@
             errorMsg.style.display = 'none';
             document.getElementById('auth-title').innerText = isRegistering ? 'Регистрация' : 'Вход в ZoVnilka';
             document.getElementById('auth-btn').innerText = isRegistering ? 'Создать аккаунт' : 'Войти';
-            document.getElementById('extra-reg-fields').style.display = isRegistering ? 'block' : 'none';
         });
 
         document.getElementById('auth-btn').addEventListener('click', () => {
@@ -452,39 +474,25 @@
             socket = io();
 
             socket.on('connect', () => {
-                socket.emit('set_username', { username, status: 'В сети' });
+                socket.emit('set_user_data', { username, avatar: userAvatar });
                 authScreen.style.display = 'none';
                 chatScreen.style.display = 'flex';
                 document.getElementById('profile-username').value = username;
+                updateProfileAvaUI();
             });
 
-            // Обновление списка онлайн и генерация элементов для ЛС
-            socket.on('update_users', (users) => {
-                onlineUsersContainer.innerHTML = '';
-                users.forEach(usr => {
-                    if (usr.username === username) return; // Себя не выводим в список ЛС
-                    
-                    if (!chatHistories[usr.username]) {
-                        chatHistories[usr.username] = [];
-                    }
-
-                    const row = document.createElement('div');
-                    row.className = `chat-item ${currentTargetUser === usr.username ? 'active-chat' : ''}`;
-                    row.id = `pm-item-${usr.username}`;
-                    row.onclick = () => openPrivateChat(usr.username);
-                    
-                    row.innerHTML = `
-                        <div class="chat-item-avatar">${usr.username.charAt(0).toUpperCase()}</div>
-                        <div class="chat-item-info">
-                            <div class="title">${usr.username}</div>
-                            <div class="preview">${usr.status || 'В сети'}</div>
-                        </div>
-                    `;
-                    onlineUsersContainer.appendChild(row);
-                });
+            // Поиск пользователей с сервера
+            searchUserInput.addEventListener('input', (e) => {
+                const query = e.target.value.trim();
+                if (query.length > 0) {
+                    socket.emit('search_users', query, (foundUsers) => {
+                        renderChatList(foundUsers);
+                    });
+                } else {
+                    renderChatList();
+                }
             });
 
-            // Получение публичного сообщения
             socket.on('chat_message', (data) => {
                 chatHistories['global'].push(data);
                 if (currentTargetUser === null) {
@@ -492,22 +500,19 @@
                 }
             });
 
-            // Получение личного сообщения (ЛС)
             socket.on('private_message', (data) => {
-                // Определяем с кем диалог (если я отправитель, то чат с получателем, иначе с отправителем)
                 const chatPartner = data.sender === username ? data.recipient : data.sender;
                 
                 if (!chatHistories[chatPartner]) {
                     chatHistories[chatPartner] = [];
                 }
                 chatHistories[chatPartner].push(data);
+                activePMUsers.add(chatPartner);
 
-                // Если мы сейчас открыли этот чат, сразу рисуем
                 if (currentTargetUser === chatPartner) {
                     appendMessageDOM(data);
-                } else {
-                    // Можно подсветить непрочитанные (опционально)
                 }
+                renderChatList();
             });
         });
 
@@ -518,14 +523,11 @@
             const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
             if (currentTargetUser === null) {
-                // Отправка в общий чат
                 socket.emit('chat_message', { message: text });
             } else {
-                // Отправка в ЛС
                 socket.emit('private_message', { recipient: currentTargetUser, message: text });
                 
-                // Сразу локально добавляем в историю ЛС
-                const pmData = { sender: username, recipient: currentTargetUser, message: text, time: time, isPrivate: true };
+                const pmData = { sender: username, recipient: currentTargetUser, message: text, time: time };
                 chatHistories[currentTargetUser].push(pmData);
                 appendMessageDOM(pmData);
             }
@@ -534,6 +536,43 @@
 
         sendBtn.addEventListener('click', sendMessage);
         messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+
+        // Управление профилем (аватарка, никнейм)
+        const avatarFileInput = document.getElementById('avatar-file-input');
+        avatarFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    userAvatar = event.target.result;
+                    updateProfileAvaUI();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function updateProfileAvaUI() {
+            const letterSpan = document.getElementById('profile-ava-letter');
+            const imgPreview = document.getElementById('profile-img-preview');
+            if (userAvatar) {
+                imgPreview.src = userAvatar;
+                imgPreview.style.display = 'block';
+                letterSpan.style.display = 'none';
+            } else {
+                imgPreview.style.display = 'none';
+                letterSpan.style.display = 'block';
+                letterSpan.innerText = username ? username.charAt(0).toUpperCase() : 'U';
+            }
+        }
+
+        function saveProfile() {
+            const newUsername = document.getElementById('profile-username').value.trim();
+            if (!newUsername) return;
+            username = newUsername;
+            socket.emit('update_profile', { username, avatar: userAvatar });
+            updateProfileAvaUI();
+            alert('Профиль успешно сохранен!');
+        }
     </script>
 </body>
 </html>
