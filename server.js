@@ -1,12 +1,14 @@
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
+const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-app.use(express.static(__dirname));
+// Раздаем статические файлы из папки public (где лежит index.html)
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Хранилище подключенных пользователей: имя -> socket.id
 const activeUsers = {};
@@ -34,7 +36,7 @@ io.on('connection', (socket) => {
         if (!socket.username) return;
         const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         
-        // Рассылаем сообщение ВСЕМ клиентам (включая отправителя)
+        // Рассылаем сообщение ВСЕМ клиентам
         io.emit('chat_message', {
             sender: socket.username,
             message: data.message,
@@ -76,5 +78,5 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`Сервер запущен на http://localhost:${PORT}`);
+    console.log(`Сервер запущен на порту ${PORT}`);
 });
