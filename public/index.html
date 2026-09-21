@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZoVnilka — Mobile Messenger</title>
+    <title>ZoVnilka — Messenger</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -11,6 +11,7 @@
         body {
             background: #090a0f;
             color: #f3f4f6;
+            width: 100vw;
             height: 100vh;
             display: flex;
             justify-content: center;
@@ -30,6 +31,7 @@
             display: flex;
             box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.1);
             overflow: hidden;
+            position: relative;
         }
 
         #auth-screen {
@@ -43,6 +45,7 @@
             width: 90%;
             max-width: 400px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            z-index: 10;
         }
         #auth-screen h1 { margin-bottom: 20px; font-size: 24px; color: #c084fc; text-shadow: 0 0 15px rgba(168,85,247,0.4); }
         .input-group { margin-bottom: 15px; text-align: left; }
@@ -58,27 +61,24 @@
             color: #fff;
             outline: none;
             font-size: 14px;
-            transition: all 0.2s;
         }
         .input-group input:focus { border-color: #a855f7; box-shadow: 0 0 10px rgba(168,85,247,0.3); }
         
         .toggle-password {
             position: absolute; right: 12px; background: none; border: none; color: #9ca3af; cursor: pointer; font-size: 16px;
         }
-        .toggle-password:hover { color: #a855f7; }
 
         .btn {
             width: 100%; padding: 12px; background: linear-gradient(135deg, #a855f7, #6366f1);
-            border: none; border-radius: 10px; color: white; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 5px;
+            border: none; border-radius: 10px; color: white; font-weight: 600; cursor: pointer; margin-top: 5px;
             box-shadow: 0 4px 15px rgba(168,85,247,0.4);
         }
-        .btn:hover { opacity: 0.95; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(168,85,247,0.6); }
         .toggle-auth { margin-top: 15px; font-size: 13px; color: #9ca3af; cursor: pointer; }
         .toggle-auth span { color: #a855f7; font-weight: 600; }
         .error-msg { color: #f87171; font-size: 12px; margin-bottom: 10px; display: none; }
 
         #chat-screen {
-            display: none; width: 100%; height: 100%; flex-direction: row;
+            display: none; width: 100%; height: 100%; flex-direction: row; position: absolute; top: 0; left: 0; background: #090a0f;
         }
 
         .nav-rail {
@@ -89,10 +89,9 @@
             width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center;
             color: #9ca3af; font-size: 18px; cursor: pointer; transition: all 0.25s ease; position: relative;
         }
-        .nav-item:hover { background: rgba(168, 85, 247, 0.15); color: #c084fc; transform: scale(1.05); }
+        .nav-item:hover { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
         .nav-item.active { background: linear-gradient(135deg, #a855f7, #6366f1); color: #fff; box-shadow: 0 4px 15px rgba(168,85,247,0.4); }
         .nav-item.logout { margin-top: auto; color: #f87171; }
-        .nav-item.logout:hover { background: rgba(239, 68, 68, 0.2); color: #f87171; }
 
         .sidebar-panels {
             width: 320px; background: rgba(12, 15, 25, 0.45); border-right: 1px solid rgba(255, 255, 255, 0.05);
@@ -108,67 +107,55 @@
             width: 100%; padding: 10px 14px 10px 38px; background: rgba(10, 13, 20, 0.8);
             border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; color: #fff; font-size: 13px; outline: none;
         }
-        .search-box input:focus { border-color: #a855f7; box-shadow: 0 0 10px rgba(168,85,247,0.25); }
         .search-box i { position: absolute; left: 13px; top: 12px; color: #9ca3af; font-size: 14px; }
 
         .chat-item {
             display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px;
-            background: rgba(168, 85, 247, 0.08); border: 1px solid rgba(168, 85, 247, 0.15); cursor: pointer;
-            transition: all 0.2s; margin-bottom: 8px;
+            background: rgba(168, 85, 247, 0.08); border: 1px solid rgba(168, 85, 247, 0.15); cursor: pointer; margin-bottom: 8px;
         }
-        .chat-item:hover { background: rgba(168, 85, 247, 0.18); }
         .chat-item.active-chat { border-color: #a855f7; background: rgba(168, 85, 247, 0.25); }
         
         .chat-item-avatar {
             width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #3b82f6);
             display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; overflow: hidden; flex-shrink: 0;
         }
-        .chat-item-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .chat-item-info .title { font-size: 14px; font-weight: 600; color: #fff; }
         .chat-item-info .preview { font-size: 12px; color: #9ca3af; margin-top: 2px; }
 
         .profile-card { text-align: center; }
         .profile-big-ava {
             width: 84px; height: 84px; border-radius: 50%; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center;
-            font-size: 34px; font-weight: bold; color: #fff; box-shadow: 0 8px 25px rgba(168,85,247,0.3); border: 2px solid rgba(255,255,255,0.1);
-            overflow: hidden; position: relative; cursor: pointer; background: linear-gradient(135deg, #a855f7, #6366f1);
+            font-size: 34px; font-weight: bold; color: #fff; background: linear-gradient(135deg, #a855f7, #6366f1); overflow: hidden; cursor: pointer;
         }
-        .profile-big-ava img { width: 100%; height: 100%; object-fit: cover; }
         .profile-field { text-align: left; margin-bottom: 14px; }
         .profile-field label { font-size: 12px; color: #9ca3af; display: block; margin-bottom: 6px; }
-        .profile-field input { width: 100%; padding: 11px 14px; background: rgba(10, 13, 20, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff; font-size: 13px; outline: none; }
+        .profile-field input { width: 100%; padding: 11px 14px; background: rgba(10, 13, 20, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff; font-size: 13px; }
 
         .tg-chat-area { flex: 1; display: flex; flex-direction: column; background: rgba(10, 13, 20, 0.25); position: relative; }
         .tg-chat-header {
             padding: 14px 20px; background: rgba(15, 18, 30, 0.4); border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            display: flex; align-items: center; gap: 14px; backdrop-filter: blur(10px);
+            display: flex; align-items: center; gap: 14px;
         }
         .tg-chat-header .chat-title { font-size: 15px; font-weight: 600; color: #fff; }
         .tg-chat-header .chat-status { font-size: 12px; color: #10b981; }
 
-        .back-btn {
-            display: none; background: none; border: none; color: #c084fc; font-size: 20px; cursor: pointer; padding-right: 5px;
-        }
+        .back-btn { display: none; background: none; border: none; color: #c084fc; font-size: 20px; cursor: pointer; }
 
         .tg-messages {
             flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
-            background-image: radial-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 0); background-size: 24px 24px;
         }
         
         .message {
             max-width: 75%; padding: 10px 14px 8px 14px; border-radius: 16px; background: rgba(30, 36, 56, 0.85);
-            backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); position: relative; word-break: break-word;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.25); display: flex; flex-direction: column; gap: 4px; align-self: flex-start; border-bottom-left-radius: 4px;
+            border: 1px solid rgba(255,255,255,0.05); position: relative; word-break: break-word; display: flex; flex-direction: column; gap: 4px; align-self: flex-start; border-bottom-left-radius: 4px;
         }
         .message.my-message {
-            background: linear-gradient(135deg, #8b5cf6, #6366f1); align-self: flex-end; border-bottom-right-radius: 4px;
-            border-bottom-left-radius: 16px; border: none; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+            background: linear-gradient(135deg, #8b5cf6, #6366f1); align-self: flex-end; border-bottom-right-radius: 4px; border-bottom-left-radius: 16px; border: none;
         }
         
         .msg-user { font-size: 12px; color: #c084fc; font-weight: 600; margin-bottom: 2px; }
         .msg-content { font-size: 14px; color: #f3f4f6; line-height: 1.45; padding-right: 65px; }
         .message.my-message .msg-content { color: #ffffff; }
-        .msg-image { max-width: 100%; max-height: 260px; border-radius: 10px; margin-top: 6px; cursor: pointer; display: block; }
         
         .msg-footer-row { position: absolute; bottom: 6px; right: 10px; display: flex; align-items: center; gap: 4px; }
         .msg-time { font-size: 10px; color: rgba(255, 255, 255, 0.6); }
@@ -176,39 +163,31 @@
         .msg-ticks.read { color: #38bdf8; }
 
         .tg-input-area {
-            padding: 12px 16px; background: rgba(15, 18, 30, 0.5); border-top: 1px solid rgba(255, 255, 255, 0.05);
-            display: flex; gap: 10px; align-items: center; backdrop-filter: blur(10px);
+            padding: 12px 16px; background: rgba(15, 18, 30, 0.5); border-top: 1px solid rgba(255, 255, 255, 0.05); display: flex; gap: 10px; align-items: center;
         }
         .file-btn { background: none; border: none; color: #9ca3af; font-size: 18px; cursor: pointer; }
-        .file-btn:hover { color: #a855f7; }
         
         .tg-input-area input {
-            flex: 1; padding: 12px 16px; background: rgba(10, 13, 20, 0.8); border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 24px; color: #fff; outline: none; font-size: 14px;
+            flex: 1; padding: 12px 16px; background: rgba(10, 13, 20, 0.8); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; color: #fff; outline: none; font-size: 14px;
         }
-        .tg-input-area input:focus { border-color: #a855f7; box-shadow: 0 0 12px rgba(168,85,247,0.25); }
         .send-btn {
-            width: 42px; height: 42px; background: linear-gradient(135deg, #a855f7, #6366f1); border: none; border-radius: 50%;
-            color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;
-            box-shadow: 0 4px 15px rgba(168,85,247,0.4);
+            width: 42px; height: 42px; background: linear-gradient(135deg, #a855f7, #6366f1); border: none; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;
         }
-        .send-btn:hover { transform: scale(1.08); }
 
-        /* АДАПТИВНОСТЬ ДЛЯ ТЕЛЕФОНОВ (Экраны уже 768px) */
+        /* МОБИЛЬНАЯ ВЕРСИЯ */
         @media (max-width: 768px) {
             body { height: 100vh; overflow: hidden; }
-            .container { width: 100%; height: 100vh; border-radius: 0; border: none; }
+            .container { width: 100vw; height: 100vh; border-radius: 0; border: none; }
             
-            #chat-screen { flex-direction: column-reverse; } /* Панель навигации снизу, как в Telegram */
+            #chat-screen { flex-direction: column-reverse; }
             
             .nav-rail {
-                width: 100%; height: 60px; flex-direction: row; justify-content: space-around; padding: 0; border-right: none; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(10, 12, 20, 0.95);
+                width: 100%; height: 60px; flex-direction: row; justify-content: space-around; padding: 0; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(10, 12, 20, 0.95);
             }
             .nav-item.logout { margin-top: 0; }
             
-            .sidebar-panels { width: 100%; flex: 1; border-right: none; }
+            .sidebar-panels { width: 100%; flex: 1; }
             
-            /* Если чат открыт на телефоне, скрываем список чатов и показываем область переписки */
             body.chat-active .sidebar-panels { display: none !important; }
             body.chat-active .tg-chat-area { display: flex !important; flex: 1; }
             body:not(.chat-active) .tg-chat-area { display: none !important; }
@@ -428,7 +407,7 @@
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             document.getElementById(`panel-${tabName}`).classList.add('active');
             element.classList.add('active');
-            bodyElement.classList.remove('chat-active'); // сбрасываем моб. чат при смене вкладки
+            bodyElement.classList.remove('chat-active');
         }
 
         function logout() {
@@ -444,7 +423,7 @@
             document.querySelectorAll('.chat-item').forEach(el => el.classList.remove('active-chat'));
             document.getElementById('chat-item-global').classList.add('active-chat');
             
-            bodyElement.classList.add('chat-active'); // переключаем экран на моб. устройствах
+            bodyElement.classList.add('chat-active');
             renderCurrentChatMessages();
         }
 
@@ -464,12 +443,12 @@
             chatHistories[targetUsername].forEach(m => { if(m.sender === username) m.read = true; });
 
             renderChatList();
-            bodyElement.classList.add('chat-active'); // переключаем экран на моб. устройствах
+            bodyElement.classList.add('chat-active');
             renderCurrentChatMessages();
         }
 
         function closeMobileChat() {
-            bodyElement.classList.remove('chat-active'); // возвращаем список чатов на телефоне
+            bodyElement.classList.remove('chat-active');
         }
 
         searchUserInput.addEventListener('input', (e) => {
