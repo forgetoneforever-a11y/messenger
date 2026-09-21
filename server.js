@@ -1,81 +1,83 @@
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
+const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-app.use(express.static(path.join(__dirname, 'public')));
+// Создаем папку для загрузок и файл данных, если их нет
+if (!fs.existsSync('uploads')) fs.mkdirSync('uploads');
+const USERS_FILE = 'users.json';
+if (!fs.existsSync(USERS_FILE)) fs.writeFileSync(USERS_FILE, JSON.stringify([]));
 
-// Хранилище: юзернейм -> socketId
-const registeredUsers = {};
+const upload = multer({ dest: 'uploads/' });
+
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Получение списка пользователей / проверка
+app.get('/api/users', (req, res) => {
+    const users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
+    res.json(users);
+});
+
+// Регистрация / Авторизация по юзернейму
+app.post('/api/auth', (req, res) => {
+    const { username } = req.body;
+    if (!username) return res.status(400).json({ error: 'Юзернейм обязателен' });
+
+    let users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
+    let user = users.find(u => u.username === username);
+
+    if (!user) {
+        user = {
+            id: 'user_' + Date.now(),
+            username: username,
+            displayName: username,
+            avatar: ''
+        };
+        users.push(user);
+        fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+    }
+
+    res.json(user);
+});
+
+// Сохранение профиля (ник, аватарка)
+app.post('/api/profile', upload.single('avatar'), (req, res) => {
+    const { userId, username, displayName } = req.body;
+    let users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
+    let userIndex = users.findIndex(u => u.id === userId);
+
+    if (userIndex === -1) {
+        return res.status(404).json({ success: false, error: 'Пользователь не найден' });
+    }
+
+    users[userIndex].username = username || users[userIndex].username;
+    users[userIndex].displayName = displayName || users[userIndex].displayName;
+    
+    if (req.file) {
+        users[userIndex].avatar = `/uploads/${req.file.filename}`;
+    }
+
+    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+    res.json({ success: true, user: users[userIndex] });
+});
 
 io.on('connection', (socket) => {
-    console.log('Подключился:', socket.id);
+    console.log('Пользователь подключился:', socket.id);
 
-    socket.on('set_user_data', (data) => {
-        socket.username = data.username;
-        registeredUsers[data.username] = socket.id;
-    });
-
-    // Поиск по @username
-    socket.on('search_users', (query, callback) => {
-        const results = [];
-        const cleanQuery = query.toLowerCase();
-        for (const uname of Object.keys(registeredUsers)) {
-            if (uname.toLowerCase().includes(cleanQuery) && uname !== socket.username) {
-                results.push(uname);
-            }
-        }
-        callback(results);
-    });
-
-    socket.on('chat_message', (data) => {
-        if (!socket.username) return;
-        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        io.emit('chat_message', {
-            sender: socket.username,
-            message: data.message,
-            time: time,
-            image: data.image || null
-        });
-    });
-
-    socket.on('private_message', (data) => {
-        if (!socket.username) return;
-        const targetSocketId = registeredUsers[data.recipient];
-        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        
-        const payload = {
-            sender: socket.username,
-            recipient: data.recipient,
-            message: data.message,
-            time: time,
-            read: false,
-            image: data.image || null
-        };
-
-        if (targetSocketId) {
-            io.to(targetSocketId).emit('private_message', payload);
-        }
-    });
-
-    // Обработка сигнала прочтения (двойные синие галочки)
-    socket.on('mark_read', (data) => {
-        if (!socket.username) return;
-        const targetSocketId = registeredUsers[data.sender];
-        if (targetSocketId) {
-            io.to(targetSocketId).emit('messages_read', { by: socket.username });
-        }
+    socket.on('chat message', (data) => {
+        io.emit('chat message', data);
     });
 
     socket.on('disconnect', () => {
-        if (socket.username) {
-            delete registeredUsers[socket.username];
-        }
-        console.log('Отключился:', socket.id);
+        console.log('Пользователь отключился:', socket.id);
     });
 });
 
