@@ -8,12 +8,12 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
+// Правильная раздача статики из папки public (исправляет проблему с белым экраном)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Файл для постоянного хранения сообщений на сервере
+// Файл для постоянного сохранения истории сообщений на сервере
 const MESSAGES_FILE = path.join(__dirname, 'messages.json');
 
-// Загружаем историю сообщений при старте сервера
 let messagesDB = [];
 if (fs.existsSync(MESSAGES_FILE)) {
     try {
@@ -34,18 +34,20 @@ const registeredUsers = {};
 io.on('connection', (socket) => {
     console.log('Пользователь подключился:', socket.id);
 
+    // Авторизация пользователя и отправка ему его истории переписок
     socket.on('set_user_data', (data) => {
         socket.username = data.username;
         registeredUsers[data.username] = socket.id;
         console.log(`Авторизован: ${data.username}`);
 
-        // Отправляем пользователю всю его историю сообщений (и общие, и ЛС) при входе
+        // Отсылаем общую историю и ЛС, которые касаются этого пользователя
         const userHistory = messagesDB.filter(m => 
             m.recipient === null || m.sender === socket.username || m.recipient === socket.username
         );
         socket.emit('init_history', userHistory);
     });
 
+    // Поиск пользователей по юзернейму
     socket.on('search_users', (query, callback) => {
         const results = [];
         const cleanQuery = query.toLowerCase();
@@ -57,13 +59,14 @@ io.on('connection', (socket) => {
         callback(results);
     });
 
+    // Публичное сообщение (общий чат)
     socket.on('chat_message', (data) => {
         if (!socket.username) return;
         const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         
         const msg = {
             sender: socket.username,
-            recipient: null, // Общий чат
+            recipient: null,
             message: data.message,
             time: time,
             read: true,
@@ -76,6 +79,7 @@ io.on('connection', (socket) => {
         io.emit('chat_message', msg);
     });
 
+    // Личное сообщение (ЛС)
     socket.on('private_message', (data) => {
         if (!socket.username) return;
         const targetSocketId = registeredUsers[data.recipient];
@@ -83,27 +87,25 @@ io.on('connection', (socket) => {
         
         const payload = {
             sender: socket.username,
-            recipient: data.recipient, // Личное сообщение конкретному пользователю
+            recipient: data.recipient,
             message: data.message,
             time: time,
             read: false,
             image: data.image || null
         };
 
-        // Сохраняем ЛС в постоянную базу сервера
         messagesDB.push(payload);
         saveMessagesToFile();
 
-        // Отправляем получателю, если он онлайн
         if (targetSocketId) {
             io.to(targetSocketId).emit('private_message', payload);
         }
     });
 
+    // Отметка о прочтении (двойные синие галочки)
     socket.on('mark_read', (data) => {
         if (!socket.username) return;
         
-        // Отмечаем прочитанными в базе данных сервера
         messagesDB.forEach(m => {
             if (m.sender === data.sender && m.recipient === socket.username) {
                 m.read = true;
