@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZoVnilka — Search & Direct Messages</title>
+    <title>ZoVnilka — Messenger</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -81,28 +81,12 @@
         }
 
         .nav-rail {
-            width: 76px;
-            background: rgba(10, 12, 20, 0.6);
-            border-right: 1px solid rgba(255, 255, 255, 0.05);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 24px 0;
-            gap: 16px;
-            z-index: 5;
+            width: 76px; background: rgba(10, 12, 20, 0.6); border-right: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex; flex-direction: column; align-items: center; padding: 24px 0; gap: 16px; z-index: 5;
         }
         .nav-item {
-            width: 48px;
-            height: 48px;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #9ca3af;
-            font-size: 18px;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            position: relative;
+            width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center;
+            color: #9ca3af; font-size: 18px; cursor: pointer; transition: all 0.25s ease; position: relative;
         }
         .nav-item:hover { background: rgba(168, 85, 247, 0.15); color: #c084fc; transform: scale(1.05); }
         .nav-item.active { background: linear-gradient(135deg, #a855f7, #6366f1); color: #fff; box-shadow: 0 4px 15px rgba(168,85,247,0.4); }
@@ -110,20 +94,15 @@
         .nav-item.logout:hover { background: rgba(239, 68, 68, 0.2); color: #f87171; }
 
         .sidebar-panels {
-            width: 320px;
-            background: rgba(12, 15, 25, 0.45);
-            border-right: 1px solid rgba(255, 255, 255, 0.05);
-            display: flex;
-            flex-direction: column;
+            width: 320px; background: rgba(12, 15, 25, 0.45); border-right: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex; flex-direction: column;
         }
         .panel-content { display: none; flex: 1; flex-direction: column; overflow-y: auto; padding: 20px; }
         .panel-content.active { display: flex; }
 
         .panel-title { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 15px; }
 
-        .search-box {
-            position: relative; margin-bottom: 15px;
-        }
+        .search-box { position: relative; margin-bottom: 15px; }
         .search-box input {
             width: 100%; padding: 10px 14px 10px 38px; background: rgba(10, 13, 20, 0.8);
             border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; color: #fff; font-size: 13px; outline: none;
@@ -147,8 +126,6 @@
         .chat-item-info .title { font-size: 14px; font-weight: 600; color: #fff; }
         .chat-item-info .preview { font-size: 12px; color: #9ca3af; margin-top: 2px; }
 
-        .search-results-list { margin-top: 5px; }
-
         .profile-card { text-align: center; }
         .profile-big-ava {
             width: 84px; height: 84px; border-radius: 50%; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center;
@@ -159,9 +136,6 @@
         .profile-field { text-align: left; margin-bottom: 14px; }
         .profile-field label { font-size: 12px; color: #9ca3af; display: block; margin-bottom: 6px; }
         .profile-field input { width: 100%; padding: 11px 14px; background: rgba(10, 13, 20, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff; font-size: 13px; outline: none; }
-
-        .setting-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; }
-        .setting-item span { color: #d1d5db; }
 
         .tg-chat-area { flex: 1; display: flex; flex-direction: column; background: rgba(10, 13, 20, 0.25); position: relative; }
         .tg-chat-header {
@@ -177,39 +151,24 @@
         }
         
         .message {
-            max-width: 68%;
-            padding: 10px 14px 8px 14px;
-            border-radius: 16px;
-            background: rgba(30, 36, 56, 0.85);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.05);
-            position: relative;
-            word-break: break-word;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.25);
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            align-self: flex-start;
-            border-bottom-left-radius: 4px;
+            max-width: 68%; padding: 10px 14px 8px 14px; border-radius: 16px; background: rgba(30, 36, 56, 0.85);
+            backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); position: relative; word-break: break-word;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.25); display: flex; flex-direction: column; gap: 4px; align-self: flex-start; border-bottom-left-radius: 4px;
         }
         .message.my-message {
-            background: linear-gradient(135deg, #8b5cf6, #6366f1);
-            align-self: flex-end;
-            border-bottom-right-radius: 4px;
-            border-bottom-left-radius: 16px;
-            border: none;
-            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+            background: linear-gradient(135deg, #8b5cf6, #6366f1); align-self: flex-end; border-bottom-right-radius: 4px;
+            border-bottom-left-radius: 16px; border: none; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
         }
         
         .msg-user { font-size: 12px; color: #c084fc; font-weight: 600; margin-bottom: 2px; }
-        .msg-content { font-size: 14px; color: #f3f4f6; line-height: 1.45; padding-right: 50px; }
+        .msg-content { font-size: 14px; color: #f3f4f6; line-height: 1.45; padding-right: 65px; }
         .message.my-message .msg-content { color: #ffffff; }
         .msg-image { max-width: 100%; max-height: 260px; border-radius: 10px; margin-top: 6px; cursor: pointer; display: block; }
         
-        .msg-footer-row {
-            position: absolute; bottom: 6px; right: 10px; display: flex; align-items: center; gap: 4px;
-        }
+        .msg-footer-row { position: absolute; bottom: 6px; right: 10px; display: flex; align-items: center; gap: 4px; }
         .msg-time { font-size: 10px; color: rgba(255, 255, 255, 0.6); }
+        .msg-ticks { font-size: 11px; color: rgba(255, 255, 255, 0.6); letter-spacing: -2px; }
+        .msg-ticks.read { color: #38bdf8; } /* Синие галочки прочтения */
 
         .tg-input-area {
             padding: 16px 24px; background: rgba(15, 18, 30, 0.5); border-top: 1px solid rgba(255, 255, 255, 0.05);
@@ -239,8 +198,8 @@
             <h1 id="auth-title">Вход в ZoVnilka</h1>
             <div class="error-msg" id="error-msg">Ошибка</div>
             <div class="input-group">
-                <label>Никнейм:</label>
-                <input type="text" id="username-input" placeholder="Твой ник...">
+                <label>Юзернейм (@username):</label>
+                <input type="text" id="username-input" placeholder="@nickname">
             </div>
             <div class="input-group">
                 <label>Пароль:</label>
@@ -255,7 +214,6 @@
 
         <!-- Экран Чата -->
         <div id="chat-screen">
-            <!-- Навигационная панель -->
             <div class="nav-rail">
                 <div class="nav-item active" onclick="switchTab('chats', this)" title="Чаты"><i class="fa-solid fa-comments"></i></div>
                 <div class="nav-item" onclick="switchTab('profile', this)" title="Профиль"><i class="fa-solid fa-user"></i></div>
@@ -263,12 +221,9 @@
                 <div class="nav-item logout" onclick="logout()" title="Выйти"><i class="fa-solid fa-arrow-right-from-bracket"></i></div>
             </div>
 
-            <!-- Боковая панель -->
             <div class="sidebar-panels">
                 <div class="panel-content active" id="panel-chats">
                     <div class="panel-title">Чаты</div>
-                    
-                    <!-- Общий чат -->
                     <div class="chat-item active-chat" id="chat-item-global" onclick="openGlobalChat()">
                         <div class="chat-item-avatar"><i class="fa-solid fa-bullhorn"></i></div>
                         <div class="chat-item-info">
@@ -277,13 +232,11 @@
                         </div>
                     </div>
 
-                    <!-- Поиск пользователей -->
                     <div class="search-box" style="margin-top: 15px;">
                         <i class="fa-solid fa-search"></i>
-                        <input type="text" id="search-user-input" placeholder="Найти пользователя...">
+                        <input type="text" id="search-user-input" placeholder="Поиск @username...">
                     </div>
 
-                    <!-- Результаты поиска и активные ЛС -->
                     <div class="search-results-list" id="search-results-container"></div>
                 </div>
 
@@ -296,23 +249,22 @@
                             <input type="file" id="avatar-file-input" accept="image/*" style="display: none;">
                         </div>
                         <div class="profile-field">
-                            <label>Никнейм</label>
-                            <input type="text" id="profile-username">
+                            <label>Юзернейм</label>
+                            <input type="text" id="profile-username" readonly style="opacity: 0.7;">
                         </div>
-                        <button class="btn" onclick="saveProfile()">Сохранить</button>
+                        <button class="btn" onclick="saveProfile()">Сохранить аватарку</button>
                     </div>
                 </div>
 
                 <div class="panel-content" id="panel-settings">
                     <div class="panel-title">Настройки</div>
-                    <div class="setting-item">
+                    <div class="setting-item" style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
                         <span>Звуки уведомлений</span>
-                        <input type="checkbox" id="setting-sound" checked>
+                        <input type="checkbox" checked>
                     </div>
                 </div>
             </div>
 
-            <!-- Область чата -->
             <div class="tg-chat-area">
                 <div class="tg-chat-header">
                     <div class="user-avatar" id="current-chat-icon" style="width: 36px; height: 36px; background: #6366f1; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow:hidden;"><i class="fa-solid fa-bullhorn"></i></div>
@@ -340,12 +292,12 @@
     <script>
         let isRegistering = false;
         let socket;
-        let username = '';
-        let userAvatar = ''; // картинка base64 или пусто
-        let currentTargetUser = null; // null = общий чат, строка = ЛС
+        let username = localStorage.getItem('zov_username') || '';
+        let userAvatar = localStorage.getItem('zov_avatar') || ''; // Локальная аватарка
+        let currentTargetUser = null; 
         
         const chatHistories = { 'global': [] };
-        const activePMUsers = new Set(); // Список пользователей с которыми открыт ЛС через поиск
+        const activePMUsers = new Set();
 
         const authScreen = document.getElementById('auth-screen');
         const chatScreen = document.getElementById('chat-screen');
@@ -358,6 +310,74 @@
         const searchUserInput = document.getElementById('search-user-input');
         const searchResultsContainer = document.getElementById('search-results-container');
 
+        // Авто-вход при наличии сессии в localStorage
+        window.addEventListener('DOMContentLoaded', () => {
+            if (username) {
+                initSession(username);
+            }
+        });
+
+        function formatUsername(val) {
+            val = val.trim();
+            if (!val.startsWith('@')) {
+                return '@' + val;
+            }
+            return val;
+        }
+
+        function initSession(u) {
+            username = u;
+            localStorage.setItem('zov_username', username);
+            socket = io();
+
+            socket.on('connect', () => {
+                socket.emit('set_user_data', { username, avatar: '' }); // Сервер аватарки чужие не хранит, они только локально
+                authScreen.style.display = 'none';
+                chatScreen.style.display = 'flex';
+                document.getElementById('profile-username').value = username;
+                updateProfileAvaUI();
+            });
+
+            socket.on('chat_message', (data) => {
+                chatHistories['global'].push(data);
+                if (currentTargetUser === null) {
+                    appendMessageDOM(data);
+                }
+            });
+
+            socket.on('private_message', (data) => {
+                const chatPartner = data.sender === username ? data.recipient : data.sender;
+                if (!chatHistories[chatPartner]) chatHistories[chatPartner] = [];
+                chatHistories[chatPartner].push(data);
+                activePMUsers.add(chatPartner);
+
+                if (currentTargetUser === chatPartner) {
+                    appendMessageDOM(data);
+                    // Если чат открыт, сразу отправляем сигнал о прочтении
+                    socket.emit('mark_read', { sender: chatPartner });
+                }
+                renderChatList();
+            });
+
+            // Обновление статуса прочтения галочек
+            socket.on('messages_read', (data) => {
+                if (chatHistories[data.by]) {
+                    chatHistories[data.by].forEach(msg => {
+                        if (msg.sender === username) msg.read = true;
+                    });
+                }
+                renderCurrentChatMessages();
+            });
+        }
+
+        document.getElementById('auth-btn').addEventListener('click', () => {
+            let u = usernameInput.value.trim();
+            const p = passwordInput.value.trim();
+            if (!u || !p) { errorMsg.innerText = 'Заполни все поля!'; errorMsg.style.display = 'block'; return; }
+            u = formatUsername(u);
+            initSession(u);
+        });
+
         function switchTab(tabName, element) {
             document.querySelectorAll('.panel-content').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -365,61 +385,67 @@
             element.classList.add('active');
         }
 
-        function logout() { window.location.reload(); }
+        function logout() {
+            localStorage.removeItem('zov_username');
+            window.location.reload();
+        }
 
         function openGlobalChat() {
             currentTargetUser = null;
             document.getElementById('current-chat-title').innerText = 'Общий чат ZoVnilka';
             document.getElementById('chat-header-status').innerText = 'Публичный канал';
             document.getElementById('current-chat-icon').innerHTML = '<i class="fa-solid fa-bullhorn"></i>';
-            
             document.querySelectorAll('.chat-item').forEach(el => el.classList.remove('active-chat'));
             document.getElementById('chat-item-global').classList.add('active-chat');
             renderCurrentChatMessages();
         }
 
-        function openPrivateChat(targetUsername, targetAvatar) {
+        function openPrivateChat(targetUsername) {
             if (targetUsername === username) return;
             currentTargetUser = targetUsername;
             activePMUsers.add(targetUsername);
             
-            if (!chatHistories[targetUsername]) {
-                chatHistories[targetUsername] = [];
-            }
+            if (!chatHistories[targetUsername]) chatHistories[targetUsername] = [];
 
             document.getElementById('current-chat-title').innerText = targetUsername;
             document.getElementById('chat-header-status').innerText = 'Личное сообщение';
+            document.getElementById('current-chat-icon').innerHTML = targetUsername.replace('@', '').charAt(0).toUpperCase();
+
+            // Сигнализируем серверу, что прочитали сообщения этого юзера
+            socket.emit('mark_read', { sender: targetUsername });
             
-            const iconEl = document.getElementById('current-chat-icon');
-            if (targetAvatar) {
-                iconEl.innerHTML = `<img src="${targetAvatar}" style="width:100%; height:100%; object-fit:cover;">`;
-            } else {
-                iconEl.innerHTML = targetUsername.charAt(0).toUpperCase();
-            }
+            // Сбрасываем статус прочтения локально для отправленных
+            chatHistories[targetUsername].forEach(m => { if(m.sender === username) m.read = true; });
 
             renderChatList();
             renderCurrentChatMessages();
         }
 
+        searchUserInput.addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            if (query.length > 0) {
+                socket.emit('search_users', query, (foundUsers) => {
+                    renderChatList(foundUsers);
+                });
+            } else {
+                renderChatList();
+            }
+        });
+
         function renderChatList(usersToDisplay = []) {
             searchResultsContainer.innerHTML = '';
-            
-            // Если введен поисковый запрос, выводим результаты поиска, иначе просто активные диалоги ЛС
             const displayList = usersToDisplay.length > 0 ? usersToDisplay : Array.from(activePMUsers);
 
-            displayList.forEach(usrObj => {
-                const targetName = typeof usrObj === 'string' ? usrObj : usrObj.username;
-                const targetAva = typeof usrObj === 'object' ? usrObj.avatar : '';
+            displayList.forEach(usrName => {
+                const targetName = typeof usrName === 'string' ? usrName : usrName.username;
                 if (targetName === username) return;
 
                 const row = document.createElement('div');
                 row.className = `chat-item ${currentTargetUser === targetName ? 'active-chat' : ''}`;
-                row.onclick = () => openPrivateChat(targetName, targetAva);
+                row.onclick = () => openPrivateChat(targetName);
                 
-                const avaHtml = targetAva ? `<img src="${targetAva}">` : targetName.charAt(0).toUpperCase();
-
                 row.innerHTML = `
-                    <div class="chat-item-avatar">${avaHtml}</div>
+                    <div class="chat-item-avatar">${targetName.replace('@','').charAt(0).toUpperCase()}</div>
                     <div class="chat-item-info">
                         <div class="title">${targetName}</div>
                         <div class="preview">Личный чат</div>
@@ -446,11 +472,18 @@
                 contentHtml += `<img src="${data.image}" class="msg-image" onclick="window.open(this.src)">`;
             }
 
-            // Никнейм всегда пишется одинаково (как в чате, без лишних плашек ЛС)
+            // Галочки: ✓ (одна) или ✓✓ (две, синие если прочитано)
+            let ticksHtml = '';
+            if (isMy && currentTargetUser !== null) {
+                const readClass = data.read ? 'read' : '';
+                ticksHtml = `<span class="msg-ticks ${readClass}">✓✓</span>`;
+            }
+
             div.innerHTML = `
                 ${!isMy ? `<div class="msg-user">${data.sender}</div>` : ''}
                 ${contentHtml}
                 <div class="msg-footer-row">
+                    ${ticksHtml}
                     <span class="msg-time">${data.time}</span>
                 </div>
             `;
@@ -458,76 +491,16 @@
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        document.getElementById('toggle-auth-btn').addEventListener('click', () => {
-            isRegistering = !isRegistering;
-            errorMsg.style.display = 'none';
-            document.getElementById('auth-title').innerText = isRegistering ? 'Регистрация' : 'Вход в ZoVnilka';
-            document.getElementById('auth-btn').innerText = isRegistering ? 'Создать аккаунт' : 'Войти';
-        });
-
-        document.getElementById('auth-btn').addEventListener('click', () => {
-            const u = usernameInput.value.trim();
-            const p = passwordInput.value.trim();
-            if (!u || !p) { errorMsg.innerText = 'Заполни все поля!'; errorMsg.style.display = 'block'; return; }
-
-            username = u;
-            socket = io();
-
-            socket.on('connect', () => {
-                socket.emit('set_user_data', { username, avatar: userAvatar });
-                authScreen.style.display = 'none';
-                chatScreen.style.display = 'flex';
-                document.getElementById('profile-username').value = username;
-                updateProfileAvaUI();
-            });
-
-            // Поиск пользователей с сервера
-            searchUserInput.addEventListener('input', (e) => {
-                const query = e.target.value.trim();
-                if (query.length > 0) {
-                    socket.emit('search_users', query, (foundUsers) => {
-                        renderChatList(foundUsers);
-                    });
-                } else {
-                    renderChatList();
-                }
-            });
-
-            socket.on('chat_message', (data) => {
-                chatHistories['global'].push(data);
-                if (currentTargetUser === null) {
-                    appendMessageDOM(data);
-                }
-            });
-
-            socket.on('private_message', (data) => {
-                const chatPartner = data.sender === username ? data.recipient : data.sender;
-                
-                if (!chatHistories[chatPartner]) {
-                    chatHistories[chatPartner] = [];
-                }
-                chatHistories[chatPartner].push(data);
-                activePMUsers.add(chatPartner);
-
-                if (currentTargetUser === chatPartner) {
-                    appendMessageDOM(data);
-                }
-                renderChatList();
-            });
-        });
-
         function sendMessage() {
             const text = messageInput.value.trim();
             if (!text) return;
-
             const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
             if (currentTargetUser === null) {
                 socket.emit('chat_message', { message: text });
             } else {
                 socket.emit('private_message', { recipient: currentTargetUser, message: text });
-                
-                const pmData = { sender: username, recipient: currentTargetUser, message: text, time: time };
+                const pmData = { sender: username, recipient: currentTargetUser, message: text, time: time, read: false };
                 chatHistories[currentTargetUser].push(pmData);
                 appendMessageDOM(pmData);
             }
@@ -537,7 +510,7 @@
         sendBtn.addEventListener('click', sendMessage);
         messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
 
-        // Управление профилем (аватарка, никнейм)
+        // Локальная аватарка
         const avatarFileInput = document.getElementById('avatar-file-input');
         avatarFileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
@@ -545,6 +518,7 @@
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     userAvatar = event.target.result;
+                    localStorage.setItem('zov_avatar', userAvatar);
                     updateProfileAvaUI();
                 };
                 reader.readAsDataURL(file);
@@ -561,17 +535,12 @@
             } else {
                 imgPreview.style.display = 'none';
                 letterSpan.style.display = 'block';
-                letterSpan.innerText = username ? username.charAt(0).toUpperCase() : 'U';
+                letterSpan.innerText = username ? username.replace('@','').charAt(0).toUpperCase() : 'U';
             }
         }
 
         function saveProfile() {
-            const newUsername = document.getElementById('profile-username').value.trim();
-            if (!newUsername) return;
-            username = newUsername;
-            socket.emit('update_profile', { username, avatar: userAvatar });
-            updateProfileAvaUI();
-            alert('Профиль успешно сохранен!');
+            alert('Аватарка успешно сохранена локально!');
         }
     </script>
 </body>
