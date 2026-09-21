@@ -9,7 +9,7 @@ const io = new Server(server);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Хранилище пользователей: имя -> { socketId, avatar }
+// Хранилище: юзернейм -> socketId
 const registeredUsers = {};
 
 io.on('connection', (socket) => {
@@ -17,29 +17,16 @@ io.on('connection', (socket) => {
 
     socket.on('set_user_data', (data) => {
         socket.username = data.username;
-        registeredUsers[data.username] = {
-            socketId: socket.id,
-            avatar: data.avatar || ''
-        };
+        registeredUsers[data.username] = socket.id;
     });
 
-    socket.on('update_profile', (data) => {
-        if (socket.username && registeredUsers[socket.username]) {
-            delete registeredUsers[socket.username];
-        }
-        socket.username = data.username;
-        registeredUsers[data.username] = {
-            socketId: socket.id,
-            avatar: data.avatar || ''
-        };
-    });
-
-    // Поиск пользователей по подстроке никнейма
+    // Поиск по @username
     socket.on('search_users', (query, callback) => {
         const results = [];
-        for (const [uname, info] of Object.entries(registeredUsers)) {
-            if (uname.toLowerCase().includes(query.toLowerCase()) && uname !== socket.username) {
-                results.push({ username: uname, avatar: info.avatar });
+        const cleanQuery = query.toLowerCase();
+        for (const uname of Object.keys(registeredUsers)) {
+            if (uname.toLowerCase().includes(cleanQuery) && uname !== socket.username) {
+                results.push(uname);
             }
         }
         callback(results);
@@ -58,7 +45,7 @@ io.on('connection', (socket) => {
 
     socket.on('private_message', (data) => {
         if (!socket.username) return;
-        const targetUser = registeredUsers[data.recipient];
+        const targetSocketId = registeredUsers[data.recipient];
         const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         
         const payload = {
@@ -66,11 +53,21 @@ io.on('connection', (socket) => {
             recipient: data.recipient,
             message: data.message,
             time: time,
+            read: false,
             image: data.image || null
         };
 
-        if (targetUser && targetUser.socketId) {
-            io.to(targetUser.socketId).emit('private_message', payload);
+        if (targetSocketId) {
+            io.to(targetSocketId).emit('private_message', payload);
+        }
+    });
+
+    // Обработка сигнала прочтения (двойные синие галочки)
+    socket.on('mark_read', (data) => {
+        if (!socket.username) return;
+        const targetSocketId = registeredUsers[data.sender];
+        if (targetSocketId) {
+            io.to(targetSocketId).emit('messages_read', { by: socket.username });
         }
     });
 
