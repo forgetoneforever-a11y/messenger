@@ -16,17 +16,31 @@
 
         /* Основной интерфейс */
         #app-screen { display: flex; height: 100vh; }
-        .sidebar { width: 80px; background: #14141a; display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 20px; border-right: 1px solid #222; }
+        .sidebar-nav { width: 80px; background: #14141a; display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 20px; border-right: 1px solid #222; }
         .nav-btn { background: none; border: none; color: #888; font-size: 20px; cursor: pointer; padding: 10px; border-radius: 8px; }
         .nav-btn.active { background: #222230; color: #6c5ce7; }
 
-        .content-area { flex: 1; display: flex; flex-direction: column; padding: 20px; }
-        
+        .content-area { flex: 1; display: flex; position: relative; }
+        .tab-content { width: 100%; height: 100%; display: flex; }
+        .tab-content.hidden { display: none; }
+
+        /* Интерфейс чатов в стиле Telegram */
+        .chats-sidebar { width: 300px; background: #131318; border-right: 1px solid #222; display: flex; flex-direction: column; padding: 15px; gap: 10px; }
+        .chat-main { flex: 1; display: flex; flex-direction: column; background: #0f0f13; }
+        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .chat-input-area { padding: 15px; background: #14141a; display: flex; gap: 10px; border-top: 1px solid #222; }
+        .chat-input-area input { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #333; background: #1d1d26; color: #fff; outline: none; }
+        .chat-input-area button { padding: 0 20px; background: #6c5ce7; border: none; border-radius: 8px; color: #fff; cursor: pointer; font-weight: bold; }
+
+        .message { max-width: 60%; padding: 10px 14px; border-radius: 10px; background: #222230; word-break: break-word; }
+        .message.my { background: #6c5ce7; align-self: flex-end; }
+
         /* Профиль */
+        .profile-wrapper { padding: 30px; width: 100%; overflow-y: auto; }
         .profile-container { max-width: 400px; display: flex; flex-direction: column; gap: 15px; }
         .avatar-preview { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; background: #333; }
         .input-group { display: flex; flex-direction: column; gap: 5px; }
-        .input-group input { padding: 10px; border-radius: 8px; border: 1px solid #333; background: #181820; }
+        .input-group input { padding: 10px; border-radius: 8px; border: 1px solid #333; background: #181820; color: #fff; }
         .save-btn { padding: 10px; background: #6c5ce7; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
@@ -36,43 +50,55 @@
     <div id="auth-screen">
         <div class="auth-box">
             <h2>Вход</h2>
-            <input type="text" id="authUsername" placeholder="Введите юзернейм (например, @Forget)">
+            <input type="text" id="authUsername" placeholder="Введите юзернейм (@username)">
             <button id="authBtn">Войти</button>
         </div>
     </div>
 
     <!-- ОСНОВНОЙ ИНТЕРФЕЙС -->
     <div id="app-screen" class="hidden">
-        <div class="sidebar">
-            <button class="nav-btn active" onclick="switchTab('chat')">💬</button>
-            <button class="nav-btn" onclick="switchTab('profile')">👤</button>
+        <div class="sidebar-nav">
+            <button class="nav-btn active" onclick="switchTab('chat', this)">💬</button>
+            <button class="nav-btn" onclick="switchTab('profile', this)">👤</button>
         </div>
 
         <div class="content-area">
-            <!-- Вкладка чата -->
+            <!-- Вкладка чатов -->
             <div id="tab-chat" class="tab-content">
-                <h2>Чаты</h2>
-                <p>Добро пожаловать в мессенджер!</p>
+                <div class="chats-sidebar">
+                    <h3>Чаты</h3>
+                    <div style="color: #888; font-size: 14px; margin-top: 10px;">Общий чат</div>
+                </div>
+                <div class="chat-main">
+                    <div style="padding: 15px 20px; background: #131318; border-bottom: 1px solid #222; font-weight: bold;">Общий чат</div>
+                    <div class="chat-messages" id="messagesContainer"></div>
+                    <div class="chat-input-area">
+                        <input type="text" id="messageInput" placeholder="Написать сообщение...">
+                        <button id="sendBtn">Отправить</button>
+                    </div>
+                </div>
             </div>
 
             <!-- Вкладка профиля -->
             <div id="tab-profile" class="tab-content hidden">
-                <h2>Мой профиль</h2>
-                <div class="profile-container" style="margin-top: 20px;">
-                    <img id="profileAvatarImg" class="avatar-preview" src="" alt="Аватар">
-                    <input type="file" id="avatarFileInput" accept="image/*">
-                    
-                    <div class="input-group">
-                        <label>Отображаемое имя (Ник)</label>
-                        <input type="text" id="displayNameInput" placeholder="Ваше имя">
-                    </div>
+                <div class="profile-wrapper">
+                    <h2>Мой профиль</h2>
+                    <div class="profile-container" style="margin-top: 20px;">
+                        <img id="profileAvatarImg" class="avatar-preview" src="" alt="Аватар">
+                        <input type="file" id="avatarFileInput" accept="image/*">
+                        
+                        <div class="input-group">
+                            <label>Отображаемое имя (Ник)</label>
+                            <input type="text" id="displayNameInput" placeholder="Ваше имя">
+                        </div>
 
-                    <div class="input-group">
-                        <label>Юзернейм</label>
-                        <input type="text" id="usernameInput" placeholder="@username">
-                    </div>
+                        <div class="input-group">
+                            <label>Юзернейм</label>
+                            <input type="text" id="usernameInput" placeholder="@username">
+                        </div>
 
-                    <button class="save-btn" id="saveProfileBtn">Сохранить на сервер</button>
+                        <button class="save-btn" id="saveProfileBtn">Сохранить на сервер</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -82,14 +108,11 @@
     <script>
         const socket = io();
 
-        // Проверка сессии при загрузке страницы
         const savedUser = JSON.parse(localStorage.getItem('user') || 'null');
-
         if (savedUser) {
             initApp(savedUser);
         }
 
-        // Авторизация
         document.getElementById('authBtn').addEventListener('click', async () => {
             const username = document.getElementById('authUsername').value.trim();
             if (!username) return alert('Введите юзернейм!');
@@ -109,7 +132,6 @@
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('app-screen').classList.remove('hidden');
 
-            // Заполняем поля профиля текущими данными
             document.getElementById('usernameInput').value = user.username || '';
             document.getElementById('displayNameInput').value = user.displayName || '';
             if (user.avatar) {
@@ -117,19 +139,46 @@
             }
         }
 
-        // Переключение вкладок
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+        function switchTab(tabName, el) {
+            document.querySelectorAll('.tab-content').forEach(item => item.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(item => item.classList.remove('active'));
 
             if (tabName === 'chat') {
                 document.getElementById('tab-chat').classList.remove('hidden');
-                event.currentTarget.classList.add('active');
             } else if (tabName === 'profile') {
                 document.getElementById('tab-profile').classList.remove('hidden');
-                event.currentTarget.classList.add('active');
             }
+            el.classList.add('active');
         }
+
+        // Отправка и получение сообщений через Socket.IO
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const messagesContainer = document.getElementById('messagesContainer');
+
+        function sendMessage() {
+            const text = messageInput.value.trim();
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!text || !user) return;
+
+            socket.emit('chat message', { user: user.displayName || user.username, text });
+            messageInput.value = '';
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        socket.on('chat message', (data) => {
+            const user = JSON.parse(localStorage.getItem('user'));
+            const div = document.createElement('div');
+            const isMy = user && data.user === (user.displayName || user.username);
+            div.className = `message ${isMy ? 'my' : ''}`;
+            div.innerHTML = `<strong>${data.user}:</strong> ${data.text}`;
+            messagesContainer.appendChild(div);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        });
 
         // Сохранение профиля на сервер
         document.getElementById('saveProfileBtn').addEventListener('click', async () => {
