@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZoVnilka — Messenger</title>
+    <title>ZoVnilka — Mobile Messenger</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -35,15 +35,16 @@
         #auth-screen {
             margin: auto;
             text-align: center;
-            padding: 40px;
+            padding: 30px;
             background: rgba(20, 24, 40, 0.7);
             backdrop-filter: blur(20px);
             border-radius: 16px;
             border: 1px solid rgba(255, 255, 255, 0.08);
-            width: 400px;
+            width: 90%;
+            max-width: 400px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.5);
         }
-        #auth-screen h1 { margin-bottom: 20px; font-size: 26px; color: #c084fc; text-shadow: 0 0 15px rgba(168,85,247,0.4); }
+        #auth-screen h1 { margin-bottom: 20px; font-size: 24px; color: #c084fc; text-shadow: 0 0 15px rgba(168,85,247,0.4); }
         .input-group { margin-bottom: 15px; text-align: left; }
         .input-group label { display: block; font-size: 13px; margin-bottom: 6px; color: #9ca3af; }
         
@@ -139,19 +140,23 @@
 
         .tg-chat-area { flex: 1; display: flex; flex-direction: column; background: rgba(10, 13, 20, 0.25); position: relative; }
         .tg-chat-header {
-            padding: 14px 24px; background: rgba(15, 18, 30, 0.4); border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 14px 20px; background: rgba(15, 18, 30, 0.4); border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             display: flex; align-items: center; gap: 14px; backdrop-filter: blur(10px);
         }
         .tg-chat-header .chat-title { font-size: 15px; font-weight: 600; color: #fff; }
         .tg-chat-header .chat-status { font-size: 12px; color: #10b981; }
 
+        .back-btn {
+            display: none; background: none; border: none; color: #c084fc; font-size: 20px; cursor: pointer; padding-right: 5px;
+        }
+
         .tg-messages {
-            flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
+            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
             background-image: radial-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 0); background-size: 24px 24px;
         }
         
         .message {
-            max-width: 68%; padding: 10px 14px 8px 14px; border-radius: 16px; background: rgba(30, 36, 56, 0.85);
+            max-width: 75%; padding: 10px 14px 8px 14px; border-radius: 16px; background: rgba(30, 36, 56, 0.85);
             backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); position: relative; word-break: break-word;
             box-shadow: 0 4px 15px rgba(0,0,0,0.25); display: flex; flex-direction: column; gap: 4px; align-self: flex-start; border-bottom-left-radius: 4px;
         }
@@ -171,26 +176,48 @@
         .msg-ticks.read { color: #38bdf8; }
 
         .tg-input-area {
-            padding: 16px 24px; background: rgba(15, 18, 30, 0.5); border-top: 1px solid rgba(255, 255, 255, 0.05);
-            display: flex; gap: 12px; align-items: center; backdrop-filter: blur(10px);
+            padding: 12px 16px; background: rgba(15, 18, 30, 0.5); border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex; gap: 10px; align-items: center; backdrop-filter: blur(10px);
         }
         .file-btn { background: none; border: none; color: #9ca3af; font-size: 18px; cursor: pointer; }
         .file-btn:hover { color: #a855f7; }
         
         .tg-input-area input {
-            flex: 1; padding: 12px 18px; background: rgba(10, 13, 20, 0.8); border: 1px solid rgba(255, 255, 255, 0.08);
+            flex: 1; padding: 12px 16px; background: rgba(10, 13, 20, 0.8); border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 24px; color: #fff; outline: none; font-size: 14px;
         }
         .tg-input-area input:focus { border-color: #a855f7; box-shadow: 0 0 12px rgba(168,85,247,0.25); }
         .send-btn {
-            width: 44px; height: 44px; background: linear-gradient(135deg, #a855f7, #6366f1); border: none; border-radius: 50%;
+            width: 42px; height: 42px; background: linear-gradient(135deg, #a855f7, #6366f1); border: none; border-radius: 50%;
             color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;
             box-shadow: 0 4px 15px rgba(168,85,247,0.4);
         }
         .send-btn:hover { transform: scale(1.08); }
+
+        /* АДАПТИВНОСТЬ ДЛЯ ТЕЛЕФОНОВ (Экраны уже 768px) */
+        @media (max-width: 768px) {
+            body { height: 100vh; overflow: hidden; }
+            .container { width: 100%; height: 100vh; border-radius: 0; border: none; }
+            
+            #chat-screen { flex-direction: column-reverse; } /* Панель навигации снизу, как в Telegram */
+            
+            .nav-rail {
+                width: 100%; height: 60px; flex-direction: row; justify-content: space-around; padding: 0; border-right: none; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(10, 12, 20, 0.95);
+            }
+            .nav-item.logout { margin-top: 0; }
+            
+            .sidebar-panels { width: 100%; flex: 1; border-right: none; }
+            
+            /* Если чат открыт на телефоне, скрываем список чатов и показываем область переписки */
+            body.chat-active .sidebar-panels { display: none !important; }
+            body.chat-active .tg-chat-area { display: flex !important; flex: 1; }
+            body:not(.chat-active) .tg-chat-area { display: none !important; }
+            
+            .back-btn { display: inline-block; }
+        }
     </style>
 </head>
-<body>
+<body id="body">
 
     <div class="container">
         <!-- Экран Входа -->
@@ -267,6 +294,7 @@
 
             <div class="tg-chat-area">
                 <div class="tg-chat-header">
+                    <button class="back-btn" onclick="closeMobileChat()"><i class="fa-solid fa-arrow-left"></i></button>
                     <div class="user-avatar" id="current-chat-icon" style="width: 36px; height: 36px; background: #6366f1; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow:hidden;"><i class="fa-solid fa-bullhorn"></i></div>
                     <div>
                         <div class="chat-title" id="current-chat-title">Общий чат ZoVnilka</div>
@@ -309,6 +337,7 @@
         const sendBtn = document.getElementById('send-btn');
         const searchUserInput = document.getElementById('search-user-input');
         const searchResultsContainer = document.getElementById('search-results-container');
+        const bodyElement = document.getElementById('body');
 
         window.addEventListener('DOMContentLoaded', () => {
             if (username) {
@@ -337,7 +366,6 @@
                 updateProfileAvaUI();
             });
 
-            // Загрузка всей истории с сервера при подключении
             socket.on('init_history', (history) => {
                 chatHistories = { 'global': [] };
                 activePMUsers.clear();
@@ -400,6 +428,7 @@
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             document.getElementById(`panel-${tabName}`).classList.add('active');
             element.classList.add('active');
+            bodyElement.classList.remove('chat-active'); // сбрасываем моб. чат при смене вкладки
         }
 
         function logout() {
@@ -414,6 +443,8 @@
             document.getElementById('current-chat-icon').innerHTML = '<i class="fa-solid fa-bullhorn"></i>';
             document.querySelectorAll('.chat-item').forEach(el => el.classList.remove('active-chat'));
             document.getElementById('chat-item-global').classList.add('active-chat');
+            
+            bodyElement.classList.add('chat-active'); // переключаем экран на моб. устройствах
             renderCurrentChatMessages();
         }
 
@@ -433,7 +464,12 @@
             chatHistories[targetUsername].forEach(m => { if(m.sender === username) m.read = true; });
 
             renderChatList();
+            bodyElement.classList.add('chat-active'); // переключаем экран на моб. устройствах
             renderCurrentChatMessages();
+        }
+
+        function closeMobileChat() {
+            bodyElement.classList.remove('chat-active'); // возвращаем список чатов на телефоне
         }
 
         searchUserInput.addEventListener('input', (e) => {
