@@ -168,7 +168,7 @@
         .msg-footer-row { position: absolute; bottom: 6px; right: 10px; display: flex; align-items: center; gap: 4px; }
         .msg-time { font-size: 10px; color: rgba(255, 255, 255, 0.6); }
         .msg-ticks { font-size: 11px; color: rgba(255, 255, 255, 0.6); letter-spacing: -2px; }
-        .msg-ticks.read { color: #38bdf8; } /* Синие галочки прочтения */
+        .msg-ticks.read { color: #38bdf8; }
 
         .tg-input-area {
             padding: 16px 24px; background: rgba(15, 18, 30, 0.5); border-top: 1px solid rgba(255, 255, 255, 0.05);
@@ -293,11 +293,12 @@
         let isRegistering = false;
         let socket;
         let username = localStorage.getItem('zov_username') || '';
-        let userAvatar = localStorage.getItem('zov_avatar') || ''; // Локальная аватарка
+        let userAvatar = localStorage.getItem('zov_avatar') || ''; 
         let currentTargetUser = null; 
         
-        const chatHistories = { 'global': [] };
-        const activePMUsers = new Set();
+        // Загрузка сохраненных чатов и списка диалогов из localStorage
+        let chatHistories = JSON.parse(localStorage.getItem('zov_chat_histories')) || { 'global': [] };
+        let activePMUsers = new Set(JSON.parse(localStorage.getItem('zov_active_pm_users')) || []);
 
         const authScreen = document.getElementById('auth-screen');
         const chatScreen = document.getElementById('chat-screen');
@@ -310,7 +311,11 @@
         const searchUserInput = document.getElementById('search-user-input');
         const searchResultsContainer = document.getElementById('search-results-container');
 
-        // Авто-вход при наличии сессии в localStorage
+        function saveChatHistories() {
+            localStorage.setItem('zov_chat_histories', JSON.stringify(chatHistories));
+            localStorage.setItem('zov_active_pm_users', JSON.stringify(Array.from(activePMUsers)));
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             if (username) {
                 initSession(username);
@@ -331,15 +336,17 @@
             socket = io();
 
             socket.on('connect', () => {
-                socket.emit('set_user_data', { username, avatar: '' }); // Сервер аватарки чужие не хранит, они только локально
+                socket.emit('set_user_data', { username, avatar: '' });
                 authScreen.style.display = 'none';
                 chatScreen.style.display = 'flex';
                 document.getElementById('profile-username').value = username;
                 updateProfileAvaUI();
+                renderChatList();
             });
 
             socket.on('chat_message', (data) => {
                 chatHistories['global'].push(data);
+                saveChatHistories();
                 if (currentTargetUser === null) {
                     appendMessageDOM(data);
                 }
@@ -350,21 +357,21 @@
                 if (!chatHistories[chatPartner]) chatHistories[chatPartner] = [];
                 chatHistories[chatPartner].push(data);
                 activePMUsers.add(chatPartner);
+                saveChatHistories();
 
                 if (currentTargetUser === chatPartner) {
                     appendMessageDOM(data);
-                    // Если чат открыт, сразу отправляем сигнал о прочтении
                     socket.emit('mark_read', { sender: chatPartner });
                 }
                 renderChatList();
             });
 
-            // Обновление статуса прочтения галочек
             socket.on('messages_read', (data) => {
                 if (chatHistories[data.by]) {
                     chatHistories[data.by].forEach(msg => {
                         if (msg.sender === username) msg.read = true;
                     });
+                    saveChatHistories();
                 }
                 renderCurrentChatMessages();
             });
@@ -411,11 +418,10 @@
             document.getElementById('chat-header-status').innerText = 'Личное сообщение';
             document.getElementById('current-chat-icon').innerHTML = targetUsername.replace('@', '').charAt(0).toUpperCase();
 
-            // Сигнализируем серверу, что прочитали сообщения этого юзера
             socket.emit('mark_read', { sender: targetUsername });
             
-            // Сбрасываем статус прочтения локально для отправленных
             chatHistories[targetUsername].forEach(m => { if(m.sender === username) m.read = true; });
+            saveChatHistories();
 
             renderChatList();
             renderCurrentChatMessages();
@@ -472,7 +478,6 @@
                 contentHtml += `<img src="${data.image}" class="msg-image" onclick="window.open(this.src)">`;
             }
 
-            // Галочки: ✓ (одна) или ✓✓ (две, синие если прочитано)
             let ticksHtml = '';
             if (isMy && currentTargetUser !== null) {
                 const readClass = data.read ? 'read' : '';
@@ -502,6 +507,7 @@
                 socket.emit('private_message', { recipient: currentTargetUser, message: text });
                 const pmData = { sender: username, recipient: currentTargetUser, message: text, time: time, read: false };
                 chatHistories[currentTargetUser].push(pmData);
+                saveChatHistories();
                 appendMessageDOM(pmData);
             }
             messageInput.value = '';
@@ -510,7 +516,6 @@
         sendBtn.addEventListener('click', sendMessage);
         messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
 
-        // Локальная аватарка
         const avatarFileInput = document.getElementById('avatar-file-input');
         avatarFileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
